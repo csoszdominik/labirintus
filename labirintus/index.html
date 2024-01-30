@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labirintus</title>
+    <style>
+        body{background-color:  darkslategrey;}
+        #jatek{
+            background-color: white;
+            border: 5px solid lightgray;
+            width: 992px; height: 672px;
+            padding: 10px;
+            margin: 0px auto;
+            font-size: 0px;
+        }
+    </style>
+    <script>
+
+        let t = [];
+        let po = 1; let ps = 1;
+        function start(){
+            let html = "";
+            for(let s=0; s<21; s++){
+                t[s] = [];
+                for(let o=0; o<31; o++){
+                    t[s][o] = "wall";
+                    html += "<img id='"+s+"x"+o+"' src='icons/wall.png'>";
+                }
+            }
+            document.getElementById("jatek").innerHTML = html;
+            gondol();
+        }
+
+        function gondol(){
+            let s=0; o=0;
+            let sor = [];
+            let osz = [];
+           
+            for( s=1; s<20; s++) for( o=1; o<30; o++) setKep(s, o, "null");
+            while(sor.length + osz.length < 23){
+                if(Math.random()>0.5 && sor.length < 9){
+                    do{
+                        s = Math.floor(Math.random()*9+1)*2; 
+                    } while (sor.includes(s));
+                    sor.push(s);
+                    if (Math.random() > 0.5){ //Balról-jobbra
+                        for( o=1; o<30; o++) if(t[s][o+1] != "wall") setKep(s, o, "wall");
+                    }else{ //Jobbról-balra
+                        for( o=29; o>0; o--) if(t[s][o-1] != "wall") setKep(s, o, "wall");
+                    }
+                } else if (osz.length < 14){
+                do{
+                    o = Math.floor(Math.random()*14+1)*2; 
+                } while (osz.includes(o));
+                osz.push(s);
+                if (Math.random() > 0.5){ // Fentről-lefele
+                    for(s=1; s<20; s++) if(t[s+1][o] != "wall") setKep(s, o, "wall");
+                }else{ // Lentről-felfele
+                    for(s=19; s>0; s--) if(t[s-1][o] != "wall") setKep(s, o, "wall");
+                    }
+                }
+            }
+            po=1; ps=Math.floor(Math.random()*10)*2+1; setKep(ps,po, "man");
+            do{
+                ks=Math.floor(Math.random()*19+1);
+                ko=Math.floor(Math.random()*29+1);
+            } while (t[ks][ko] == "wall");
+            ds = Math.floor(Math.random()*10)*2+1; setKep(ks, ko, "key");
+                        ds = Math.floor(Math.random()*10)*2+1; setKep(ds, 30, "door");
+        }
+
+        function setKep(s, o, kep){
+            document.getElementById(s+"x"+o).src = "icons/" + kep + ".png";
+            t[s][o] = kep;
+        }
+
+        let go = ["null", "key", "exit"];
+        function mozog(){
+            let b = event.key;
+            setKep(ps, po, "null");
+            if (b == 'w' && go.includes(t[ps-1][po])) ps--;
+            if (b == 's' && go.includes(t[ps+1][po])) ps++;
+            if (b == 'a' && go.includes(t[ps][po-1])) po--;
+            if (b == 'd' && go.includes(t[ps][po+1])) po++;
+            if(t[ps][po] == "key") setKep(ds, 30, "exit");
+            if(t[ps][po] == "exit") gondol();
+            setKep(ps, po, "man");
+        }
+
+    </script>
+</head>
+<body onload="start();" onkeypress="mozog();">
+    <div id="jatek"></div>
+</body>
+</html>
